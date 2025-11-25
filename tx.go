@@ -12,8 +12,12 @@ type Tx struct {
 	raw *sql.Tx
 }
 
-func (tx *Tx) queryone(ctx context.Context, query string, args ...any) *sql.Row {
-	return tx.raw.QueryRowContext(ctx, query, args...)
+func (tx *Tx) queryone(ctx context.Context, query string, args []any, dest []any) error {
+	row := tx.raw.QueryRowContext(ctx, query, args...)
+	if row.Err() != nil {
+		return row.Err()
+	}
+	return row.Scan(dest...)
 }
 
 func (tx *Tx) querymany(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
@@ -33,7 +37,7 @@ func (tx *Tx) addkey(ctx context.Context, key string, kind KeyKind) error {
 	return err
 }
 
-var ErrKeyNotExists = errors.New("kvsqlite: key not exists")
+var ErrNil = errors.New("kvsqlite: nil")
 
 func (tx *Tx) ensurekind(ctx context.Context, expected KeyKind, key string) error {
 	kind, err := tx.Kind(ctx, key)
@@ -47,23 +51,18 @@ func (tx *Tx) ensurekind(ctx context.Context, expected KeyKind, key string) erro
 }
 
 func (tx *Tx) Kind(ctx context.Context, key string) (KeyKind, error) {
-	row := tx.queryone(ctx, `select kind from kv_index where key = ?`, key)
-	err := row.Err()
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return KeyKind(0), ErrKeyNotExists
-		}
-		return KeyKind(0), err
-	}
 	var kind KeyKind
-	err = row.Scan(&kind)
+	err := tx.queryone(ctx, `select kind from kv_index where key = ?`, []any{key}, []any{&kind})
+	if err == sql.ErrNoRows {
+		err = ErrNil
+	}
 	return kind, err
 }
 
 func (tx *Tx) Exists(ctx context.Context, key string) (bool, error) {
 	_, err := tx.Kind(ctx, key)
 	if err != nil {
-		if err == ErrKeyNotExists {
+		if err == ErrNil {
 			return false, nil
 		}
 		return false, err

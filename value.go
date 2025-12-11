@@ -5,19 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"unsafe"
 )
 
 type Value struct {
 	Bytes []byte
-}
-
-func b2s(bs []byte) string {
-	return unsafe.String(unsafe.SliceData(bs), len(bs))
-}
-
-func s2b(sv string) []byte {
-	return unsafe.Slice(unsafe.StringData(sv), len(sv))
 }
 
 func Int(v int64) Value {
@@ -68,7 +59,7 @@ func MustJSONIdent(v any) Value {
 
 func String(v string) Value {
 	return Value{
-		Bytes: s2b(v),
+		Bytes: []byte(v),
 	}
 }
 
@@ -81,7 +72,7 @@ func (v *Value) Scan(src any) error {
 		}
 	case string:
 		{
-			v.Bytes = append(v.Bytes, s2b(tv)...)
+			v.Bytes = append(v.Bytes, []byte(tv)...)
 			return nil
 		}
 	default:
@@ -103,7 +94,7 @@ func (v Value) Value() (driver.Value, error) {
 }
 
 func (v *Value) String() string {
-	return b2s(v.Bytes)
+	return string(v.Bytes)
 }
 
 func (v *Value) Int64() (int64, error) {

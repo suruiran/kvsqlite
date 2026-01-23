@@ -2,7 +2,7 @@ module github.com/suruiran/kvsqlite
 
 go 1.25.4
 
-require github.com/mattn/go-sqlite3 v1.14.32
+require github.com/mattn/go-sqlite3 v1.14.33
 
 require (
 	golang.org/x/mod v0.30.0 // indirect

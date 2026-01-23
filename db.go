@@ -18,6 +18,8 @@ func OpenDB(ctx context.Context, fp string) (*DB, error) {
 	if err != nil {
 		return nil, err
 	}
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(0)
 	db.ExecContext(ctx, `PRAGMA journal_mode=WAL;`)
 	db.ExecContext(ctx, `PRAGMA busy_timeout=3000;`)
 

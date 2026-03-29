@@ -14,14 +14,12 @@ type DB struct {
 }
 
 func OpenDB(ctx context.Context, fp string) (*DB, error) {
-	db, err := sql.Open("sqlite3", fp)
+	db, err := sql.Open("sqlite3", fmt.Sprintf(`%s?_journal_mode=WAL&busy_timeout=3000`, fp))
 	if err != nil {
 		return nil, err
 	}
 	db.SetMaxOpenConns(1)
-	db.SetMaxIdleConns(0)
-	_, _ = db.ExecContext(ctx, `PRAGMA journal_mode=WAL;`)
-	_, _ = db.ExecContext(ctx, `PRAGMA busy_timeout=3000;`)
+	db.SetMaxIdleConns(1)
 
 	obj := &DB{raw: db}
 	err = obj._Init(ctx)
@@ -85,7 +83,7 @@ func (db *DB) Close() error {
 
 func (db *DB) TxScope(ctx context.Context, fnc func(ctx context.Context, tx *Tx) error) (err error) {
 	var sqltx *sql.Tx
-	sqltx, err = db.raw.Begin()
+	sqltx, err = db.raw.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}

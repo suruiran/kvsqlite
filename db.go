@@ -123,9 +123,9 @@ func (db *DB) TxScope(ctx context.Context, fnc func(ctx context.Context, tx *Tx)
 	return err
 }
 
-func (db *DB) TxScopeWithCtx(ctx context.Context, fnc func(tx *TxWithCtx) error) error {
+func (db *DB) TxScopeWithCtx(ctx context.Context, fnc func(ctx context.Context, tx *TxWithCtx) error) error {
 	return db.TxScope(ctx, func(ctx context.Context, tx *Tx) error {
 		tmp := TxWithCtx{Tx: tx, ctx: ctx}
-		return fnc(&tmp)
+		return fnc(ctx, &tmp)
 	})
 }

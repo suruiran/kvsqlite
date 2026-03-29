@@ -81,7 +81,18 @@ func (db *DB) Close() error {
 	return db.raw.Close()
 }
 
+type _CtxKeyType int
+
+const (
+	_CtxKeyTx _CtxKeyType = iota
+)
+
 func (db *DB) TxScope(ctx context.Context, fnc func(ctx context.Context, tx *Tx) error) (err error) {
+	scopetx := ctx.Value(_CtxKeyTx)
+	if scopetx != nil {
+		return fnc(ctx, scopetx.(*Tx))
+	}
+
 	var sqltx *sql.Tx
 	sqltx, err = db.raw.BeginTx(ctx, nil)
 	if err != nil {
@@ -105,7 +116,10 @@ func (db *DB) TxScope(ctx context.Context, fnc func(ctx context.Context, tx *Tx)
 			err = commit_err
 		}
 	}()
-	err = fnc(ctx, &Tx{raw: sqltx, db: db})
+
+	tx := &Tx{raw: sqltx, db: db}
+	ctx = context.WithValue(ctx, _CtxKeyTx, tx)
+	err = fnc(ctx, tx)
 	return err
 }
 

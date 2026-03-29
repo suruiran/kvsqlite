@@ -3,6 +3,7 @@ package kvsqlite
 
 import (
     "context"
+    "database/sql"
 )
             
 type _StringHandleWithCtx struct{
@@ -65,4 +66,36 @@ func (handle *_HashHandleWithCtx) Del (fields ...string) (int64, error) {
 }
 func (handle *_HashHandleWithCtx) Keys () ([]string, error) {
     return handle._HashHandle.Keys(handle.ctx)  
+}
+type _ListHandleWithCtx struct{
+    *_ListHandle
+    ctx context.Context
+}
+
+func (tx TxWithCtx) List(key string) *_ListHandleWithCtx {
+return &_ListHandleWithCtx{
+    _ListHandle: tx.Tx.List(key),
+    ctx: tx.ctx,
+}
+}
+func (handle *_ListHandleWithCtx) Size () (int64, error) {
+    return handle._ListHandle.Size(handle.ctx)  
+}
+func (handle *_ListHandleWithCtx) MaxIdx () (sql.Null[int64], error) {
+    return handle._ListHandle.MaxIdx(handle.ctx)  
+}
+func (handle *_ListHandleWithCtx) MinIdx () (sql.Null[int64], error) {
+    return handle._ListHandle.MinIdx(handle.ctx)  
+}
+func (handle *_ListHandleWithCtx) Nth (idx int) (Value, error) {
+    return handle._ListHandle.Nth(handle.ctx , idx)  
+}
+func (handle *_ListHandleWithCtx) Push (val Value) error {
+    return handle._ListHandle.Push(handle.ctx , val)  
+}
+func (handle *_ListHandleWithCtx) LPush (val Value) error {
+    return handle._ListHandle.LPush(handle.ctx , val)  
+}
+func (handle *_ListHandleWithCtx) Page (cursor *int64, pagesize int64) ([]Value, int64, error) {
+    return handle._ListHandle.Page(handle.ctx , cursor, pagesize)  
 }

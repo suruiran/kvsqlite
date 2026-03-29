@@ -93,14 +93,14 @@ func (v Value) Value() (driver.Value, error) {
 	return v.Bytes, nil
 }
 
-func (v *Value) String() string {
+func (v Value) String() string {
 	return string(v.Bytes)
 }
 
-func (v *Value) Int64() (int64, error) {
+func (v Value) Int64() (int64, error) {
 	return strconv.ParseInt(v.String(), 10, 64)
 }
 
-func (v *Value) Bool() (bool, error) {
+func (v Value) Bool() (bool, error) {
 	return strconv.ParseBool(v.String())
 }

@@ -14,36 +14,36 @@ func (tx *Tx) Hash(key string) *_HashHandle {
 	return &_HashHandle{tx: tx, key: key}
 }
 
-func (handle *_HashHandle) Get(ctx context.Context, filed string) (Value, error) {
+func (handle *_HashHandle) Get(ctx context.Context, field string) (Value, error) {
 	if err := handle.tx.ensurekind(ctx, KeyKindHash, handle.key); err != nil {
 		return Value{}, err
 	}
 	var val Value
-	err := handle.tx.queryone(ctx, `select value from kv_hash where key = ? and field = ?`, []any{handle.key, filed}, []any{&val})
+	err := handle.tx.queryone(ctx, `select value from kv_hash where key = ? and field = ?`, []any{handle.key, field}, []any{&val})
 	if err == sql.ErrNoRows {
 		err = ErrNil
 	}
 	return val, err
 }
 
-func (handle *_HashHandle) Incr(ctx context.Context, filed string, amount int64) (int64, error) {
-	prev, err := handle.Get(ctx, filed)
+func (handle *_HashHandle) Incr(ctx context.Context, field string, amount int64) (int64, error) {
+	prev, err := handle.Get(ctx, field)
 	if err != nil {
 		if err != ErrNil {
 			return 0, err
 		}
-		return amount, handle.Set(ctx, filed, Int(amount))
+		return amount, handle.Set(ctx, field, Int(amount))
 	}
 	num, err := prev.Int64()
 	if err != nil {
 		return 0, err
 	}
 	num += amount
-	return num, handle._set(ctx, filed, Int(num))
+	return num, handle._set(ctx, field, Int(num))
 }
 
-func (handle *_HashHandle) Exists(ctx context.Context, filed string) (bool, error) {
-	_, err := handle.Get(ctx, filed)
+func (handle *_HashHandle) Exists(ctx context.Context, field string) (bool, error) {
+	_, err := handle.Get(ctx, field)
 	if err != nil {
 		if err == ErrNil {
 			return false, nil
@@ -77,12 +77,9 @@ func (handle *_HashHandle) Items(ctx context.Context) (map[string]Value, error) 
 	}
 	rows, err := handle.tx.querymany(ctx, `select field, value from kv_hash where key = ?`, handle.key)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
 		return nil, err
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var vmap = map[string]Value{}
 
@@ -185,12 +182,9 @@ func (handle *_HashHandle) Keys(ctx context.Context) ([]string, error) {
 	}
 	rows, err := handle.tx.querymany(ctx, `select field from kv_hash where key = ?`, handle.key)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil, nil
-		}
 		return nil, err
 	}
-	defer rows.Close()
+	defer rows.Close() //nolint:errcheck
 
 	var keys []string
 	for rows.Next() {

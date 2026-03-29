@@ -11,11 +11,12 @@ func _() {
 	_ = x[KeyKindUndefined-0]
 	_ = x[KeyKindString-1]
 	_ = x[KeyKindHash-2]
+	_ = x[KeyKindList-3]
 }
 
-const _KeyKind_name = "UndefinedStringHash"
+const _KeyKind_name = "UndefinedStringHashList"
 
-var _KeyKind_index = [...]uint8{0, 9, 15, 19}
+var _KeyKind_index = [...]uint8{0, 9, 15, 19, 23}
 
 func (i KeyKind) String() string {
 	idx := int(i) - 0

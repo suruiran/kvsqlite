@@ -7,15 +7,15 @@ import (
 )
 
 func TestHashHandle(t *testing.T) {
-	defer db.Close()
+	defer db.Close() //nolint:errcheck
 
-	db.TxScope(context.Background(), func(ctx context.Context, tx *Tx) error {
-		tx.Hash("ccc").Set(ctx, "a", String("121"))
+	_ = db.TxScope(t.Context(), func(ctx context.Context, tx *Tx) error {
+		_ = tx.Hash("ccc").Set(ctx, "a", String("121"))
 		fmt.Println(tx.Hash("ccc").Get(ctx, "a"))
 
 		fmt.Println(tx.Hash("ccc").Items(ctx))
 
-		tx.Hash("xxxx").SetAll(ctx, map[string]Value{"xxx": String("dd"), "yyy": String("ll")})
+		_ = tx.Hash("xxxx").SetAll(ctx, map[string]Value{"xxx": String("dd"), "yyy": String("ll")})
 		fmt.Println(tx.Hash("xxxx").Items(ctx))
 		fmt.Println(tx.Hash("xxxx").Size(ctx))
 		fmt.Println(tx.Hash("xxxx").Incr(ctx, "num", -1))

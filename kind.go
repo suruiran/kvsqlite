@@ -7,4 +7,5 @@ const (
 	KeyKindUndefined KeyKind = iota
 	KeyKindString
 	KeyKindHash
+	KeyKindList
 )

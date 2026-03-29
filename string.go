@@ -39,7 +39,7 @@ func (handle *_StringHandle) Set(ctx context.Context, val Value) error {
 		}
 		err = handle.tx.addkey(ctx, handle.key, KeyKindString)
 		if err != nil {
-			return fmt.Errorf("kvsqlite: add key failed, %s", err)
+			return fmt.Errorf("kvsqlite: add key failed, %w", err)
 		}
 	}
 	return handle._set(ctx, val)

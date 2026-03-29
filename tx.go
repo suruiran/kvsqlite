@@ -84,33 +84,37 @@ func (tx *Tx) delone(ctx context.Context, key string) (int64, error) {
 		{
 			return tx.Hash(key).remove(ctx)
 		}
+	case KeyKindList:
+		{
+			return 0, tx.List(key).Clear(ctx)
+		}
 	}
 	return 0, fmt.Errorf("kvsqlite: del failed, %s", key)
 }
 
-func (tx *Tx) Del(ctx context.Context, keys ...string) (int, []error) {
+func (tx *Tx) Del(ctx context.Context, keys ...string) (int, error) {
 	if len(keys) < 1 {
 		return 0, nil
 	}
 
 	c := 0
-	var errors []error
+	var errs []error
 	for _, key := range keys {
 		if _, err := tx.delone(ctx, key); err != nil {
-			if err == sql.ErrNoRows {
+			if err == sql.ErrNoRows || err == ErrNil {
 				continue
 			}
-			errors = append(errors, err)
+			errs = append(errs, err)
 			continue
 		}
 		_, err := tx.exec(ctx, `delete from kv_index where key = ?`, key)
 		if err != nil {
-			errors = append(errors, err)
+			errs = append(errs, err)
 			continue
 		}
 		c++
 	}
-	return c, errors
+	return c, errors.Join(errs...)
 }
 
 //go:generate python ./gen.py

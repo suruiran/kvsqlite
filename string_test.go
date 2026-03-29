@@ -17,9 +17,9 @@ func init() {
 }
 
 func TestStringHandle(t *testing.T) {
-	defer db.Close()
+	defer db.Close() //nolint:errcheck
 
-	err := db.TxScope(context.Background(), func(ctx context.Context, tx *Tx) error {
+	err := db.TxScope(t.Context(), func(ctx context.Context, tx *Tx) error {
 		fmt.Println(tx.String("aaa").Set(ctx, String("1w211")))
 		fmt.Println(tx.String("xxx").Incr(ctx, -7))
 		return nil

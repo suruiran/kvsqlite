@@ -20,8 +20,8 @@ func OpenDB(ctx context.Context, fp string) (*DB, error) {
 	}
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(0)
-	db.ExecContext(ctx, `PRAGMA journal_mode=WAL;`)
-	db.ExecContext(ctx, `PRAGMA busy_timeout=3000;`)
+	_, _ = db.ExecContext(ctx, `PRAGMA journal_mode=WAL;`)
+	_, _ = db.ExecContext(ctx, `PRAGMA busy_timeout=3000;`)
 
 	obj := &DB{raw: db}
 	err = obj._Init(ctx)
@@ -54,7 +54,7 @@ func (db *DB) _Init(ctx context.Context) error {
 	); err != nil {
 		return err
 	}
-	_, err := db.raw.ExecContext(
+	if _, err := db.raw.ExecContext(
 		ctx,
 		`create table if not exists kv_hash (
 			key text not null,
@@ -62,8 +62,21 @@ func (db *DB) _Init(ctx context.Context) error {
 			value blob not null,
 			primary key (key, field)
 		)`,
-	)
-	return err
+	); err != nil {
+		return err
+	}
+	if _, err := db.raw.ExecContext(
+		ctx,
+		`create table if not exists kv_list (
+			key text not null,
+			idx int not null,
+			value blob not null,
+			primary key (key, idx)
+		)`,
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (db *DB) Close() error {

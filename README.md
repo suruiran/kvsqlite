@@ -2,4 +2,4 @@
 
 Just like `nalgeon/redka` but with tx supported.
 
-Currently, only `String` and `Hash` are available.
+Currently, only `String`, `Hash`, and `List` are available.

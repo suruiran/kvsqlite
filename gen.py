@@ -153,8 +153,10 @@ package kvsqlite
 
 import (
     "context"
+    "database/sql"
 )
             
 """)
     gen_onetype(f, "String", "string.go", "_StringHandle")
     gen_onetype(f, "Hash", "hash.go", "_HashHandle")
+    gen_onetype(f, "List", "list.go", "_ListHandle")

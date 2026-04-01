@@ -9,11 +9,11 @@ import (
 
 type Tx struct {
 	db  *DB
-	raw *sql.Tx
+	Raw *sql.Tx
 }
 
 func (tx *Tx) queryone(ctx context.Context, query string, args []any, dest []any) error {
-	row := tx.raw.QueryRowContext(ctx, query, args...)
+	row := tx.Raw.QueryRowContext(ctx, query, args...)
 	if row.Err() != nil {
 		return row.Err()
 	}
@@ -21,11 +21,11 @@ func (tx *Tx) queryone(ctx context.Context, query string, args []any, dest []any
 }
 
 func (tx *Tx) querymany(ctx context.Context, query string, args ...any) (*sql.Rows, error) {
-	return tx.raw.QueryContext(ctx, query, args...)
+	return tx.Raw.QueryContext(ctx, query, args...)
 }
 
 func (tx *Tx) exec(ctx context.Context, query string, args ...any) (int64, error) {
-	result, err := tx.raw.ExecContext(ctx, query, args...)
+	result, err := tx.Raw.ExecContext(ctx, query, args...)
 	if err != nil {
 		return 0, err
 	}
@@ -33,7 +33,7 @@ func (tx *Tx) exec(ctx context.Context, query string, args ...any) (int64, error
 }
 
 func (tx *Tx) addkey(ctx context.Context, key string, kind KeyKind) error {
-	_, err := tx.raw.ExecContext(ctx, `insert into kv_index (key, kind) values (?, ?)`, key, kind)
+	_, err := tx.Raw.ExecContext(ctx, `insert into kv_index (key, kind) values (?, ?)`, key, kind)
 	return err
 }
 

@@ -117,7 +117,7 @@ func (db *DB) TxScope(ctx context.Context, fnc func(ctx context.Context, tx *Tx)
 		}
 	}()
 
-	tx := &Tx{raw: sqltx, db: db}
+	tx := &Tx{Raw: sqltx, db: db}
 	ctx = context.WithValue(ctx, _CtxKeyTx, tx)
 	err = fnc(ctx, tx)
 	return err

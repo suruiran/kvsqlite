@@ -3,7 +3,7 @@ module github.com/suruiran/kvsqlite
 go 1.26.5
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.47
+	github.com/mattn/go-sqlite3 v1.14.49
 	github.com/suruiran/cube v0.0.0-20260407123337-ec996cd7ef0c
 )
 

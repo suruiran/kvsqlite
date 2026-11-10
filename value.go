@@ -2,9 +2,10 @@ package kvsqlite
 
 import (
 	"database/sql/driver"
-	"encoding/json"
 	"fmt"
 	"strconv"
+
+	"github.com/suruiran/cube"
 )
 
 type Value struct {
@@ -26,7 +27,7 @@ func Bytes(v []byte) Value {
 }
 
 func JSON(v any) (Value, error) {
-	bs, err := json.Marshal(v)
+	bs, err := cube.MarshalJSON(v)
 	if err != nil {
 		return Value{}, err
 	}
@@ -34,7 +35,7 @@ func JSON(v any) (Value, error) {
 }
 
 func JSONIdent(v any) (Value, error) {
-	bs, err := json.MarshalIndent(v, "", "  ")
+	bs, err := cube.MarshalJSONIndent(v)
 	if err != nil {
 		return Value{}, err
 	}
